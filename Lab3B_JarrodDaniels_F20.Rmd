@@ -1,0 +1,401 @@
+---
+title: 'Lab 3B: Manipulating Data with Tidyverse'
+author: "Jarrod Daniels"
+date: "9/7/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Data Manipulation using dyplr and tidyr
+
+```{r loading tidyverse}
+library("tidyverse")
+```
+
+```{r load csv}
+surveys <- read_csv("data/portal_data_joined.csv")
+```
+
+Inspecting and previewing the data
+```{r Intro 1}
+str(surveys)
+View(surveys)
+```
+
+## Selecting Columns and filtering Rows
+```{r select 1}
+select(surveys, plot_id, species_id, weight)
+```
+
+"-" will exclude certain values
+```{r select 2}
+select(surveys, -record_id, -species_id)
+```
+
+use filter() to filter out specific values
+```{r select 3}
+filter(surveys, year == 1995)
+```
+
+## Pipes
+
+use pipes to filter and select data in a single instance
+```{r pipes1}
+surveys2 <- filter(surveys, weight < 5)
+surveys_sml <- select(surveys2, species_id, sex, weight)
+```
+
+you also have the ability to nest functions within a single pipe
+```{r pipes2}
+surveys_sml <- select(filter(surveys, weight < 5), species_id, sex, weight)
+```
+
+
+Pipes let you stack by taking one output and sending it directly to the next filter/select. this allows for more complex data manipulation
+shortcut for pipe syntax is Ctrl Shit M
+```{r pipes3}
+surveys %>%
+  filter(weight < 5) %>%
+  select(species_id, sex, weight)
+```
+
+We can also create and store a new object using the pipes as seen below
+```{r pipes4}
+surveys_sml <- surveys %>%
+  filter(weight < 5) %>%
+  select(species_id, sex, weight)
+
+surveys_sml
+```
+
+# Challenge 1
+```{r challenge 1}
+surveys %>%
+    filter(year < 1995) %>%
+    select(year, sex, weight)
+```
+
+## Mutate
+
+using the mutate function, you can also create new columns in your data frame
+```{r mutate1}
+surveys %>%
+  mutate(weight_kg = weight / 1000)
+```
+
+You can also create a second new column based on the first new column within the same call of mutate():
+```{r mutate2}
+surveys %>%
+  mutate(weight_kg = weight / 1000,
+         weight_lb = weight_kg * 2.2)
+```
+
+by using the head function, you can also limit the amount of rows that appear on your screen/console
+```{r mutate3}
+surveys %>%
+  mutate(weight_kg = weight / 1000) %>%
+  head()
+
+```
+
+you can also combine functions such as mutate and filter in a single pipe for better data manipulation like in the code below
+```{r mutate 4}
+surveys %>%
+  filter(!is.na(weight)) %>%
+  mutate(weight_kg = weight / 1000) %>%
+  head()
+```
+
+# Challenge 2
+```{r Challenge 2}
+challenge_surveys <- surveys %>%
+    filter(!is.na(hindfoot_length)) %>%
+    mutate(hindfoot_cm = hindfoot_length / 10) %>%
+    filter(hindfoot_cm < 3) %>%
+    select(species_id, hindfoot_cm)
+
+challenge_surveys
+```
+
+## Split-apply-combine data analysis and the summarize() function
+
+Many data analysis tasks can be approached using the split-apply-combine paradigm: split the data into groups, apply some analysis to each group, and then combine the results. dplyr makes this very easy through the use of the group_by() function.
+
+The summarize() function
+group_by() is often used together with summarize(), which collapses each group into a single-row summary of that group. group_by() takes as arguments the column names that contain the categorical variables for which you want to calculate the summary statistics. So to compute the mean weight by sex:
+
+```{r sum1}
+surveys %>%
+  group_by(sex) %>%
+  summarize(mean_weight = mean(weight, na.rm = TRUE))
+```
+
+You may also have noticed that the output from these calls doesn’t run off the screen anymore. It’s one of the advantages of tbl_df over data frame.
+
+You can also group by multiple columns:
+```{r sum2}
+surveys %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight, na.rm = TRUE)) %>% 
+  tail()
+```
+
+Here, we used tail() to look at the last six rows of our summary. Before, we had used head() to look at the first six rows. We can see that the sex column contains NA values because some animals had escaped before their sex and body weights could be determined. The resulting mean_weight column does not contain NA but NaN (which refers to “Not a Number”) because mean() was called on a vector of NA values while at the same time setting na.rm = TRUE. To avoid this, we can remove the missing values for weight before we attempt to calculate the summary statistics on weight. Because the missing values are removed first, we can omit na.rm = TRUE when computing the mean:
+
+```{r sum3}
+surveys %>%
+  filter(!is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight))
+
+```
+
+Here, again, the output from these calls doesn’t run off the screen anymore. If you want to display more data, you can use the print() function at the end of your chain with the argument n specifying the number of rows to display:
+
+```{r sum4}
+surveys %>%
+  filter(!is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight)) %>%
+  print(n = 15)
+```
+
+Once the data are grouped, you can also summarize multiple variables at the same time (and not necessarily on the same variable). For instance, we could add a column indicating the minimum weight for each species for each sex:
+
+```{r sum5}
+surveys %>%
+  filter(!is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight),
+            min_weight = min(weight))
+
+```
+
+It is sometimes useful to rearrange the result of a query to inspect the values. For instance, we can sort on min_weight to put the lighter species first:
+
+```{r sum6}
+
+surveys %>%
+  filter(!is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight),
+            min_weight = min(weight)) %>%
+  arrange(min_weight)
+
+```
+
+To sort in descending order, we need to add the desc() function. If we want to sort the results by decreasing order of mean weight:
+
+```{r sum7}
+surveys %>%
+  filter(!is.na(weight)) %>%
+  group_by(sex, species_id) %>%
+  summarize(mean_weight = mean(weight),
+            min_weight = min(weight)) %>%
+  arrange(desc(mean_weight))
+
+```
+
+## Counting
+
+When working with data, we often want to know the number of observations found for each factor or combination of factors. For this task, dplyr provides count(). For example, if we wanted to count the number of rows of data for each sex, we would do:
+
+```{r Counting1}
+surveys %>%
+    count(sex) 
+```
+
+The count() function is shorthand for something we’ve already seen: grouping by a variable, and summarizing it by counting the number of observations in that group. In other words, surveys %>% count() is equivalent to:
+
+```{r Counting2}
+surveys %>%
+    group_by(sex) %>%
+    summarise(count = n())
+
+```
+
+For convenience, count() provides the sort argument:
+```{r Counting3}
+surveys %>%
+    count(sex, sort = TRUE) 
+```
+
+Previous example shows the use of count() to count the number of rows/observations for one factor (i.e., sex). If we wanted to count combination of factors, such as sex and species, we would specify the first and the second factor as the arguments of count():
+```{r Coutning4}
+surveys %>%
+  count(sex, species) 
+```
+
+With the above code, we can proceed with arrange() to sort the table according to a number of criteria so that we have a better comparison. For instance, we might want to arrange the table above in (i) an alphabetical order of the levels of the species and (ii) in descending order of the count:
+```{r Counting5}
+surveys %>%
+  count(sex, species) %>%
+  arrange(species, desc(n))
+```
+
+
+# Challenge 3
+```{r Challenge 3}
+#1
+surveys %>%
+    count(plot_type) 
+
+#2
+surveys %>%
+    filter(!is.na(hindfoot_length)) %>%
+    group_by(species_id) %>%
+    summarize(
+        mean_hf_L = mean(hindfoot_length),
+        min_hf_L = min(hindfoot_length),
+        max_hf_L = max(hindfoot_length),
+        n = n()
+    )
+
+#3
+surveys %>%
+    filter(!is.na(weight)) %>%
+    group_by(year) %>%
+    filter(weight == max(weight)) %>%
+    select(year, genus, species, weight) %>%
+    arrange(year)
+
+```
+
+## Reshaping with gather and spread
+
+Let’s use spread() to transform surveys to find the mean weight of each genus in each plot over the entire survey period. We use filter(), group_by() and summarise() to filter our observations and variables of interest, and create a new variable for the mean_weight.
+
+```{r Reshape1}
+surveys_gw <- surveys %>%
+  filter(!is.na(weight)) %>%
+  group_by(plot_id, genus) %>%
+  summarize(mean_weight = mean(weight))
+
+str(surveys_gw)
+
+```
+
+This yields surveys_gw where the observations for each plot are spread across multiple rows, 196 observations of 3 variables. Using spread() to key on genus with values from mean_weight this becomes 24 observations of 11 variables, one row for each plot.
+
+```{r reshape2}
+surveys_spread <- surveys_gw %>%
+  spread(key = genus, value = mean_weight)
+
+str(surveys_spread)
+
+```
+
+We could now plot comparisons between the weight of genera in different plots, although we may wish to fill in the missing values first.
+
+```{r reshape3}
+surveys_gw %>%
+  spread(genus, mean_weight, fill = 0) %>%
+  head()
+
+```
+
+## Gathering
+The opposing situation could occur if we had been provided with data in the form of surveys_spread, where the genus names are column names, but we wish to treat them as values of a genus variable instead.
+
+In this situation we are gathering the column names and turning them into a pair of new variables. One variable represents the column names as values, and the other variable contains the values previously associated with the column names.
+
+gather() takes four principal arguments:
+
+the data
+the key column variable we wish to create from column names.
+the values column variable we wish to create and fill with values associated with the key.
+the names of the columns we use to fill the key variable (or to drop).
+To recreate surveys_gw from surveys_spread we would create a key called genus and value called mean_weight and use all columns except plot_id for the key variable. Here we exclude plot_id from being gather()ed.
+
+```{r gather1}
+
+surveys_gather <- surveys_spread %>%
+  gather(key = "genus", value = "mean_weight", -plot_id)
+
+str(surveys_gather)
+
+```
+
+Note that now the NA genera are included in the re-gathered format. Spreading and then gathering can be a useful way to balance out a dataset so every replicate has the same composition.
+
+We could also have used a specification for what columns to include. This can be useful if you have a large number of identifying columns, and it’s easier to specify what to gather than what to leave alone. And if the columns are directly adjacent, we don’t even need to list them all out - just use the : operator!
+
+```{r gather2}
+surveys_spread %>%
+  gather(key = "genus", value = "mean_weight", Baiomys:Spermophilus) %>%
+  head()
+
+```
+
+# Challenge 4
+
+```{r}
+#1
+surveySpread = surveys %>%
+  group_by(plot_id, year) %>%
+  summarize(n_genera = n_distinct(genus)) %>%
+  spread(year, n_genera)
+
+head(surveySpread)
+
+#2
+surveySpread %>%
+  gather("year", "n_genera", -plot_id)
+
+#3
+finSurvey = surveys %>%
+  gather("measurement", "value", hindfoot_length, weight)
+
+head(finSurvey)
+
+#4
+finSurvey %>%
+  group_by(year, measurement, plot_type) %>%
+  summarize(mean_value = mean(value, na.rm=TRUE)) %>%
+  spread(measurement, mean_value)
+```
+
+## Exporting Data
+
+Now that you have learned how to use dplyr to extract information from or summarize your raw data, you may want to export these new data sets to share them with your collaborators or for archival.
+
+Similar to the read_csv() function used for reading CSV files into R, there is a write_csv() function that generates CSV files from data frames.
+
+Before using write_csv(), we are going to create a new folder, data, in our working directory that will store this generated dataset. We don’t want to write generated datasets in the same directory as our raw data. It’s good practice to keep them separate. The data_raw folder should only contain the raw, unaltered data, and should be left alone to make sure we don’t delete or modify it. In contrast, our script will generate the contents of the data directory, so even if the files it contains are deleted, we can always re-generate them.
+
+In preparation for our next lesson on plotting, we are going to prepare a cleaned up version of the data set that doesn’t include any missing data.
+
+Let’s start by removing observations of animals for which weight and hindfoot_length are missing, or the sex has not been determined:
+
+```{r Export1}
+surveys_complete <- surveys %>%
+  filter(!is.na(weight),           # remove missing weight
+         !is.na(hindfoot_length),  # remove missing hindfoot_length
+         !is.na(sex))                # remove missing sex
+
+```
+
+Because we are interested in plotting how species abundances have changed through time, we are also going to remove observations for rare species (i.e., that have been observed less than 50 times). We will do this in two steps: first we are going to create a data set that counts how often each species has been observed, and filter out the rare species; then, we will extract only the observations for these more common species:
+
+```{r export2}
+## Extract the most common species_id
+species_counts <- surveys_complete %>%
+    count(species_id) %>% 
+    filter(n >= 50)
+
+## Only keep the most common species
+surveys_complete <- surveys_complete %>%
+  filter(species_id %in% species_counts$species_id)
+```
+
+To make sure that everyone has the same data set, check that surveys_complete has 30463 rows and 13 columns by typing dim(surveys_complete).
+
+Now that our data set is ready, we can save it as a CSV file in our data folder.
+
+```{r export3}
+write_csv(surveys_complete, path = "data/surveys_complete.csv")
+```
+

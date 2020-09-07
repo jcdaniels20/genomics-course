@@ -1,0 +1,55 @@
+---
+title: 'Biology 597GE Lab 2 : Introduction to R and Reproducible Research WITH REFERENCES'
+author: "Jarrod Daniels"
+date: "8/31/2020"
+output: html_document
+bibliography: data/references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Exercise 1
+```{r Exercise 1}
+x = 3
+y = 15
+x + y
+x - y
+x * y
+x / y
+```
+
+### Exercise 2
+```{r Exercise 2}
+x = 2
+y = 3
+x^5 > y^4
+
+```
+
+
+### Exercise 3
+```{r Exercise 3}
+base_vec = c(22, 62, 148, 43, 129)
+vec_sum = sum(base_vec)
+vec_sum
+base_vec/vec_sum
+```
+
+
+### Exercise 4
+```{r Exercise 4}
+nucleotide_vec = c('A','T','C','G')
+nucleotide_vec = sort(nucleotide_vec)
+nucleotide_vec
+```
+
+Application written in R [@RCoreTeam] using the Shiny framework [@Chang2015].
+
+This is an example reference from Author Nicholas Shea and Annika Boltd [@Shea2014] from "Trends in Cognitive Sciences"
+
+Another example reference using [@R-base]
+
+
+# REFERENCES

@@ -1,16 +1,20 @@
 ---
 title: "Biology 597GE: Evolutionary Genomics & Bioinformatics"
 author: "Jarrod Daniels"
-date: "8/31/2020"
+date: Fall 2020
 output: html_document
 bibliography: data/references.bib
 ---
-This is my new website for Biology 597GE! Here you can find all of my labs and explore my work throughout the semester
+![](bunny.jpeg)
+
+Hello and Welcome! This is my new web page for Biology 597GE! Here you can find all of my labs and explore my work throughout the semester
 
 ### Labs
 
-* [lab 1](Lab1_JarrodDaniels_F20.html)
-* [lab 2](Lab2_JarrodDaniels_F20.html)
+* [Lab 1](Lab1_JarrodDaniels_F20.html)
+* [Lab 2](Lab2_JarrodDaniels_F20.html)
+* [Lab 3A](lab3A_JarrodDaniels_F20.html)
+* [Lab 3B](Lab3B_JarrodDaniels_F20.html)
 
 <br />
 <br />
