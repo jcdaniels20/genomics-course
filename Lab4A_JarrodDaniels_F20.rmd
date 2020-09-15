@@ -1,0 +1,185 @@
+---
+title: 'Lab 4B : Data wrangling and graphing COVID-19 reporting data (Part 1)'
+author: "Jarrod Daniels"
+date: "9/14/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r loading in tidyverse, include = FALSE}
+library(tidyverse)
+```
+
+```{r Loading  in Data}
+report_03_11_2020 <-   read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-11-2020.csv")) %>%
+  rename(Country_Region = "Country/Region", Province_State = "Province/State")
+```
+```{r variable details}
+str(report_03_11_2020)
+```
+```{r view report}
+View(report_03_11_2020)
+```
+
+## Interactive Data Tables
+
+```{r}
+library(DT)
+datatable(report_03_11_2020)
+
+```
+
+## Exercises
+
+# Exercise 1
+```{r Exercise 1}
+report_03_13_2020 <-   read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-13-2020.csv")) %>%
+  rename(Country_Region = "Country/Region", Province_State = "Province/State")
+
+report_09_13_2020 <-   read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/09-13-2020.csv"))
+```
+```{r Exercise 1 - 2}
+str(report_03_13_2020)
+str(report_09_13_2020)
+```
+Looking at the two outputs above, the first major difference that we can see between the old data set and the new one is the adition of 6 new variables. Specifically, FIPS, Admin2, Active, Combined_Key, Incidence_Rate, and Case_Fatality_Ratio have been added to each entry. Another important feature that was also pointed out was that some of the column headers have been changed as well. Specifically, not only is it not necissary to rename Province_State or Country_Region anymore, but Latitude and Longitude have both seemed to be changed to Lat, Long_ respectfully while maintaining the same type (num/col_double()). Finally, given the nature of how the virus has spread over the past few months, there is not more data which means the more recent data entry has more entries for different countries and provinces within them.
+
+# Exercise 2
+```{r Exercise 2}
+groupedReport09_13_2020 = report_09_13_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarize(Total_Cases = sum(Confirmed), Deaths = sum(Deaths), Recovered = sum(Recovered), Active = sum(Active))
+
+datatable(groupedReport09_13_2020)
+
+
+```
+
+# Exercise 3
+
+```{r Exercise 3}
+ConfirmedByState = report_09_13_2020 %>% 
+  filter(Country_Region == "US") %>% 
+  group_by(Province_State) %>% 
+  summarize(ConfirmedCases = sum(Confirmed))
+
+datatable(ConfirmedByState)
+
+```
+
+# Exercise 4
+
+```{r Exercise 4}
+top10 = groupedReport09_13_2020 %>% 
+  select(Country_Region, Deaths) %>% 
+  arrange(desc(Deaths)) %>% 
+  slice(0:10)
+
+datatable(top10)
+
+```
+
+
+# Exercise 5
+
+```{r Challenge 5 }
+report_03_12_2020 <-   read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-12-2020.csv")) %>%
+  rename(Country_Region = "Country/Region", Province_State = "Province/State")
+
+report_09_12_2020 <-   read_csv(url("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/09-12-2020.csv"))
+```
+
+```{r Challenge 5-2, width = 550}
+
+top_deaths10_3_12 = report_03_12_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarise(Deaths = sum(Deaths)) %>% 
+  arrange(desc(Deaths)) %>% 
+  slice(0:10)
+
+top_confirmed10_3_12 = report_03_12_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarise(Confirmed = sum(Confirmed)) %>% 
+  arrange(desc(Confirmed)) %>% 
+  slice(0:10)
+  
+top_deaths10_9_12 = report_09_12_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarise(Deaths = sum(Deaths)) %>% 
+  arrange(desc(Deaths)) %>% 
+  slice(0:10)
+
+top_confirmed10_9_12 = report_09_12_2020 %>% 
+  group_by(Country_Region) %>% 
+  summarise(Confirmed = sum(Confirmed)) %>% 
+  arrange(desc(Confirmed)) %>% 
+  slice(0:10)
+
+ggplot(data = top_deaths10_3_12, mapping = aes(x = Country_Region, y = Deaths, xlab='Country', ylab='Deaths')) +
+    geom_point(aes(color = Country_Region)) + ggtitle("Top Countries by Covid-19 Deaths on 3/12/2020") + xlab('Country') + ylab('Deaths')
+
+ggplot(data = top_deaths10_9_12, mapping = aes(x = Country_Region, y = Deaths, xlab='Country', ylab='Deaths')) +
+    geom_point(aes(color = Country_Region)) + ggtitle("Top 10 Countries by Covid-19 Deaths on 9/12/2020") + xlab('Country') + ylab('Deahts')
+
+ggplot(data = top_confirmed10_3_12, mapping = aes(x = Country_Region, y = Confirmed, xlab='Country', ylab='Confirmed')) +
+    geom_point(aes(color = Country_Region)) + ggtitle("Top 10 Countries by Confirmed Covid-19 Cases on 3/12/2020") + xlab('Country') + ylab('Confirmed Cases')
+
+ggplot(data = top_confirmed10_9_12, mapping = aes(x = Country_Region, y = Confirmed, xlab='Country', ylab='Confirmed Cases')) +
+    geom_point(aes(color = Country_Region)) + ggtitle("Top 10 Countries by Confirmed Covid-19 Cases on 9/12/2020") + xlab('Country') + ylab('Confirmed Cases')
+
+
+
+```
+
+## Exercise 6
+
+```{r Exercise 6}
+
+ConfirmedByStateTop10_3 = report_03_12_2020 %>% 
+  filter(Country_Region == "US") %>% 
+  group_by(Province_State) %>% 
+  summarize(ConfirmedCases = sum(Confirmed)) %>% 
+  arrange(desc(ConfirmedCases)) %>% 
+  slice(0:10)
+
+
+ConfirmedByStateTop10_9 = report_09_12_2020 %>% 
+  filter(Country_Region == "US") %>% 
+  group_by(Province_State) %>% 
+  summarize(ConfirmedCases = sum(Confirmed)) %>% 
+  arrange(desc(ConfirmedCases)) %>%
+  slice(0:10)
+
+DeathsByStateTop10_3 = report_03_12_2020 %>% 
+  filter(Country_Region == "US") %>% 
+  group_by(Province_State) %>% 
+  summarize(Deaths = sum(Deaths)) %>%
+  arrange(desc(Deaths)) %>%
+  slice(0:10)
+
+DeathsByStateTop10_9 = report_09_12_2020 %>% 
+  filter(Country_Region == "US") %>% 
+  group_by(Province_State) %>% 
+  summarize(Deaths = sum(Deaths)) %>% 
+  arrange(desc(Deaths)) %>% 
+  slice(0:10)
+
+```
+
+
+```{r Exercise 6-2, width = 10}
+ggplot(data = ConfirmedByStateTop10_3, aes(x = Province_State, y  = ConfirmedCases)) + geom_bar(stat = "identity", aes(fill = Province_State)) + ggtitle("Top 10 States in the US by Confirmed Covid-19 Cases on 3/12/2020") + xlab("State") + ylab("Confirmed Cases")
+
+ggplot(data = ConfirmedByStateTop10_9, aes(x = Province_State, y  = ConfirmedCases)) + geom_bar(stat = "identity", aes(fill = Province_State)) + ggtitle("Top 10 States in the US by Confirmed Covid-19 Cases on 9/12/2020") + xlab("State") + ylab("Confirmed Cases")
+
+ggplot(data = DeathsByStateTop10_3, aes(x = Province_State, y  = Deaths)) + geom_bar(stat = "identity", aes(fill = Province_State)) + ggtitle("Top 10 States in the US by Covid-19 Deaths on 3/12/2020") + xlab("State") + ylab("Deaths") + scale_fill_brewer(palette='Set3')
+
+ggplot(data = DeathsByStateTop10_9, aes(x = Province_State, y  = Deaths)) + geom_bar(stat = "identity", aes(fill = Province_State)) + ggtitle("Top 10 States in the US by Covid-19 Deaths on 9/12/2020") + xlab("State") + ylab("Deahts") + scale_fill_brewer(palette='Spectral')
+
+```
+For the final graph, since on 3/12 there were only 6 states that had Covid-19 related deaths, there are various states on the graphs that do not have a single death.
