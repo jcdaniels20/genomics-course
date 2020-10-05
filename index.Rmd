@@ -20,6 +20,7 @@ Hello and Welcome! This is my new web page for Biology 597GE! Here you can find 
 * [Lab 5: Data wrangling and graphing COVID-19 reporting data (Part 2)](Lab5_JarrodDaniels_F20.html)
 * [Lab 5 Extra: Interactive Graphs and Animations from the COVID-19 reporting data](Lab5_Extra_JarrodDaniels_F20.html)
 * [Lab 6: : Data Maps and Interactive Graphs from the COVID-19 reporting data](Lab6_JarrodDaniels_F20.html)
+* [Lab 6 Extra: Combining R Shiny Apps with Covid-19 Data](https://jcdaniels20.shinyapps.io/Lab_6x/)
 
 <br />
 <br />
