@@ -26,6 +26,7 @@ Hello and Welcome! This is my new web page for Biology 597GE! Here you can find 
 * [Lab 9: Programming in R - Regular Expressions](Lab9A_JarrodDaniels_F20.html)
 * [Lab 9X: Programming in R - Control Structures and Functions](Lab9X_JarrodDaniels_F20.html)
 * [Lab 10: Population genomics based on high throughput sequencing (HTS)](Lab10_JarrodDaniels_F20.html)
+* [Lab 11: Microbiome Analysis using dada2 and phyloseq](Lab11_Daniels_Jarrod.html)
 
 <br />
 <br />
