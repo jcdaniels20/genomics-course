@@ -27,6 +27,7 @@ Hello and Welcome! This is my new web page for Biology 597GE! Here you can find 
 * [Lab 9X: Programming in R - Control Structures and Functions](Lab9X_JarrodDaniels_F20.html)
 * [Lab 10: Population genomics based on high throughput sequencing (HTS)](Lab10_JarrodDaniels_F20.html)
 * [Lab 11: Microbiome Analysis using dada2 and phyloseq](Lab11_Daniels_Jarrod.html)
+* [Lab 12: Network Analysis using Cytoscape and RCy3](Lab12_JarrodDaniels_F20.html)
 
 <br />
 <br />
