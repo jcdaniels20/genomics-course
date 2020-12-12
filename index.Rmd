@@ -29,6 +29,7 @@ Hello and Welcome! This is my new web page for Biology 597GE! Here you can find 
 * [Lab 11: Microbiome Analysis using dada2 and phyloseq](Lab11_Daniels_Jarrod.html)
 * [Lab 12: Network Analysis using Cytoscape and RCy3](Lab12_JarrodDaniels_F20.html)
 * [Lab 13: Website & Sprucing up your Rmarkdown and GitHub Page](https://jcdaniels20.github.io/MyWebSite/)
+* [Lab 13 (Fixed issue where images where not showing up on the website)](Lab13_JarrodDaniels_F20.html)
 
 <br />
 <br />
